@@ -45,13 +45,16 @@ pipeline{
                 echo "Pushing image to dockerhub account";
                 sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''cd /opt/docker;
 cat my_pass.txt | docker login -u diannemanimtim --password-stdin;
-sudo docker build -t hello_world_demo .;
-sudo docker tag hello_world_demo diannemanimtim/hello_world_demo;
-sudo docker push diannemanimtim/hello_world_demo;''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '//opt//docker', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'Dockerfile')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+docker build -t $JOB_NAME:v1.$BUILD_ID .;
+docker tag $JOB_NAME:v1.$BUILD_ID diannemanimtim/$JOB_NAME:v1.$BUILD_ID;
+docker tag $JOB_NAME:v1.$BUILD_ID diannemanimtim/$JOB_NAME:latest;
+docker push diannemanimtim/$JOB_NAME:v1.$BUILD_ID;
+docker push diannemanimtim/$JOB_NAME:latest;
+docker rmi $JOB_NAME:v1.$BUILD_ID diannemanimtim/$JOB_NAME:v1.$BUILD_ID diannemanimtim/$JOB_NAME:latest;''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '//opt//docker', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'Dockerfile')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
         
-        stage('Pull image'){
+        stage('Deploy-Pull image'){
             steps{
                 echo "Pulling image from docker hub";
                 sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''cd /opt/playbooks;
