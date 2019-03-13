@@ -70,7 +70,7 @@ ansible-playbook deploy_pipeline.yml;''', execTimeout: 120000, flatten: false, m
             echo "This will always run"
             archiveArtifacts "target/**/*"
             junit 'target/surefire-reports/*.xml'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'coverage', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: ''])
+            //publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'coverage', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: ''])
         }
         success{
             echo "This will run only if successful"
