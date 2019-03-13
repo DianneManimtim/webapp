@@ -27,20 +27,21 @@ pipeline{
         
         stage('SonarQube analysis') { 
             steps{
-                withSonarQubeEnv('SonarQube') { 
+                echo "This job runs SonarQube code quality testing."
+                withSonarQubeEnv('SonarQube') {
                     sh 'mvn sonar:sonar'
                 }
             }
         } 
         
-        stage('SSH-Copy'){
+        stage('Deploy-SSH-Copy'){
             steps{
                 echo "Copying war file from Jenkins";
                 sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '//opt//docker', remoteDirectorySDF: false, removePrefix: 'target', sourceFiles: 'target/*.war')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
         
-        stage('Push image'){
+        stage('Deploy-Push image'){
             steps{
                 echo "Pushing image to dockerhub account";
                 sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''cd /opt/docker;
@@ -67,6 +68,8 @@ ansible-playbook deploy_pipeline.yml;''', execTimeout: 120000, flatten: false, m
     post{
         always{
             echo "This will always run"
+            archiveArtifacts "target/**/*"
+            junit 'target/surefire-reports/*.xml'
         }
         success{
             echo "This will run only if successful"
